@@ -13,23 +13,41 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-@Path("/orders")
+@Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class OrderResource {
 
+    private final List<MenuItem> menu = List.of(
+            new MenuItem("Carpaccio", 95.00),
+            new MenuItem("Bolinhas de Carbonara", 50.00),
+            new MenuItem("Crosta de Pães Especiais", 120.00),
+            new MenuItem("Angus Divino", 150.00),
+            new MenuItem("Refrigerantes", 8.00),
+            new MenuItem("Sucos Naturais", 12.00),
+            new MenuItem("Torta de Café", 20.00),
+            new MenuItem("Bolo Quente", 49.00)
+    );
+
     private final List<Order> orders = new ArrayList<>();
 
     @GET
-    @Path("/status")
+    @Path("/health")
     public Map<String, String> status() {
         return Map.of(
-            "service", "order-service",
+            "service", "delivery-backend",
             "status", "UP"
         );
     }
 
+    @GET
+    @Path("/menu")
+    public List<MenuItem> menu() {
+        return menu;
+    }
+
     @POST
+    @Path("/orders")
     public Response create(CreateOrderRequest request) {
 
         if (request == null
@@ -60,6 +78,7 @@ public class OrderResource {
     }
 
     @GET
+    @Path("/orders")
     public List<Order> list() {
         return orders;
     }
