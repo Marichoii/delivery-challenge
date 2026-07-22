@@ -19,17 +19,36 @@ import java.util.UUID;
 @Consumes(MediaType.APPLICATION_JSON)
 public class OrderResource {
 
-    private final List<MenuItem> menu = List.of(
-            new MenuItem("carpaccio", "Entrada", "Carpaccio", 95.00),
-            new MenuItem("bolinhas-carbonara", "Entrada", "Bolinhas de Carbonara", 50.00),
-            new MenuItem("crosta-paes", "Prato Principal", "Crosta de Pães Especiais", 120.00),
-            new MenuItem("angus-divino", "Prato Principal", "Angus Divino", 150.00),
-            new MenuItem("refrigerantes", "Bebidas", "Refrigerantes", 8.00),
-            new MenuItem("sucos-naturais", "Bebidas", "Sucos Naturais", 12.00),
-            new MenuItem("torta-cafe", "Sobremesas", "Torta de Café", 20.00),
-            new MenuItem("bolo-quente", "Sobremesas", "Bolo Quente", 49.00)
-    );
+    private static final String CUSTOMER_NAME = "Cliente MVP";
 
+    private final List<MenuCategory> menuCategories;
+
+    public OrderResource() {
+        this.menuCategories = new ArrayList<>();
+        menuCategories.add(new MenuCategory("Entradinhas", List.of(
+            new MenuItem("carpaccio-salmao", "Carpaccio de Salmão", 50.0),
+            new MenuItem("dadinho-tapioca", "Dadinho de Tapioca", 30.0),
+            new MenuItem("gelo", "Gelo", 5.0)
+        )));
+        menuCategories.add(new MenuCategory("Pratos Principais", List.of(
+            new MenuItem("crostas-paes", "Crostas de Pães Especiais", 110.0),
+            new MenuItem("risoto-camarao", "Risoto de Camarão", 70.0),
+            new MenuItem("angus-divino", "Angus Divino", 120.0)
+        )));
+        menuCategories.add(new MenuCategory("Sobremesas", List.of(
+            new MenuItem("torta-cafe", "Torta de Café", 20.0),
+            new MenuItem("bolo-quente", "Bolo Quente", 25.0),
+            new MenuItem("quindim", "Quindim", 20.0)
+        )));
+        menuCategories.add(new MenuCategory("Bebidas", List.of(
+            new MenuItem("cerveja", "Cerveja", 10.0),
+            new MenuItem("vinho", "Vinho", 30.0),
+            new MenuItem("refrigerante", "Refrigerante", 9.0),
+            new MenuItem("suco", "Suco", 12.0),
+            new MenuItem("agua", "Água", 5.0)
+        )));
+    }
+    
     private final List<Order> orders = new ArrayList<>();
 
     @GET
@@ -43,8 +62,8 @@ public class OrderResource {
 
     @GET
     @Path("/menu")
-    public List<MenuItem> menu() {
-        return menu;
+    public List<MenuCategory> menuCategories() {
+        return menuCategories;
     }
 
     @POST
@@ -64,7 +83,8 @@ public class OrderResource {
                     .build();
         }
 
-        Optional<MenuItem> menuItem = menu.stream()
+        Optional<MenuItem> menuItem = menuCategories.stream()
+                .flatMap(category -> category.items.stream())
                 .filter(item -> item.id.equals(request.itemId))
                 .findFirst();
 
@@ -77,6 +97,7 @@ public class OrderResource {
         MenuItem item = menuItem.get();
         Order order = new Order(
             UUID.randomUUID(),
+            CUSTOMER_NAME,
             item.id,
             item.name,
             request.quantity,

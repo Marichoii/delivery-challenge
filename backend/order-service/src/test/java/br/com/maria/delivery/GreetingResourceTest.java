@@ -19,6 +19,18 @@ class GreetingResourceTest {
     }
 
     @Test
+    void testMenuGroupedByCategory() {
+        given()
+                .when().get("/menu")
+                .then()
+                .statusCode(200)
+                .body("[0].name", is("Entradinhas"))
+                .body("[0].items[0].id", is("carpaccio-salmao"))
+                .body("[0].items[0].name", is("Carpaccio de Salmão"))
+                .body("[0].items[0].price", is(50.0F));
+    }
+
+    @Test
     void testCreateOrder() {
         given()
                 .contentType("application/json")
@@ -29,7 +41,7 @@ class GreetingResourceTest {
                 .body("itemId", is("angus-divino"))
                 .body("itemName", is("Angus Divino"))
                 .body("quantity", is(2))
-                .body("total", is(300.0F))
+                .body("total", is(240.0F))
                 .body("status", is("CREATED"));
     }
 

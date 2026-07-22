@@ -5,7 +5,7 @@ Inicio bem simples do backend de uma aplicacao de delivery usando Java com Quark
 ## O que tem agora
 
 - `GET /health`: verifica se a API esta rodando;
-- `GET /menu`: mostra um cardapio fixo com `id`, categoria, nome e preco;
+- `GET /menu`: mostra um cardapio fixo agrupado por categoria;
 - `POST /orders`: cria um pedido usando o `itemId`, valida se o item existe e calcula o total;
 - `GET /orders`: lista os pedidos criados.
 
@@ -24,6 +24,25 @@ Depois acesse:
 - `http://localhost:8081/menu`
 - `http://localhost:8081/orders`
 - `http://localhost:8081/q/swagger-ui`
+
+## Exemplo do cardapio
+
+O endpoint `GET /menu` retorna primeiro a categoria e depois os itens:
+
+```json
+[
+  {
+    "name": "Entradinhas",
+    "items": [
+      {
+        "id": "carpaccio-salmao",
+        "name": "Carpaccio de Salmão",
+        "price": 50.0
+      }
+    ]
+  }
+]
+```
 
 ## Exemplo de criacao de pedido
 

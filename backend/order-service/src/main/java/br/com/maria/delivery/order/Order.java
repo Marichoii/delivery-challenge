@@ -5,6 +5,7 @@ import java.util.UUID;
 public class Order {
 
     public UUID id;
+    public String customerName;
     public String itemId;
     public String itemName;
     public int quantity;
@@ -14,8 +15,9 @@ public class Order {
     public Order() {
     }
 
-    public Order(UUID id, String itemId, String itemName, int quantity, double total, String status) {
+    public Order(UUID id, String customerName, String itemId, String itemName, int quantity, double total, String status) {
         this.id = id;
+        this.customerName = customerName;
         this.itemId = itemId;
         this.itemName = itemName;
         this.quantity = quantity;
