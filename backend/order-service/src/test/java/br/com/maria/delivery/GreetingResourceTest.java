@@ -22,13 +22,26 @@ class GreetingResourceTest {
     void testCreateOrder() {
         given()
                 .contentType("application/json")
-                .body("{\"item\":\"Hamburguer\",\"quantity\":1}")
+                .body("{\"itemId\":\"angus-divino\",\"quantity\":2}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
-                .body("item", is("Hamburguer"))
-                .body("quantity", is(1))
+                .body("itemId", is("angus-divino"))
+                .body("itemName", is("Angus Divino"))
+                .body("quantity", is(2))
+                .body("total", is(300.0F))
                 .body("status", is("CREATED"));
+    }
+
+    @Test
+    void testCreateOrderWithInvalidItem() {
+        given()
+                .contentType("application/json")
+                .body("{\"itemId\":\"item-inexistente\",\"quantity\":1}")
+                .when().post("/orders")
+                .then()
+                .statusCode(404)
+                .body("error", is("Item não encontrado no cardápio."));
     }
 
 }

@@ -11,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Path("/")
@@ -19,14 +20,14 @@ import java.util.UUID;
 public class OrderResource {
 
     private final List<MenuItem> menu = List.of(
-            new MenuItem("Entrada", "Carpaccio", 95.00),
-            new MenuItem("Entrada", "Bolinhas de Carbonara", 50.00),
-            new MenuItem("Prato Principal", "Crosta de Pães Especiais", 120.00),
-            new MenuItem("Prato Principal", "Angus Divino", 150.00),
-            new MenuItem("Bebidas", "Refrigerantes", 8.00),
-            new MenuItem("Bebidas", "Sucos Naturais", 12.00),
-            new MenuItem("Sobremesas", "Torta de Café", 20.00),
-            new MenuItem("Sobremesas", "Bolo Quente", 49.00)
+            new MenuItem("carpaccio", "Entrada", "Carpaccio", 95.00),
+            new MenuItem("bolinhas-carbonara", "Entrada", "Bolinhas de Carbonara", 50.00),
+            new MenuItem("crosta-paes", "Prato Principal", "Crosta de Pães Especiais", 120.00),
+            new MenuItem("angus-divino", "Prato Principal", "Angus Divino", 150.00),
+            new MenuItem("refrigerantes", "Bebidas", "Refrigerantes", 8.00),
+            new MenuItem("sucos-naturais", "Bebidas", "Sucos Naturais", 12.00),
+            new MenuItem("torta-cafe", "Sobremesas", "Torta de Café", 20.00),
+            new MenuItem("bolo-quente", "Sobremesas", "Bolo Quente", 49.00)
     );
 
     private final List<Order> orders = new ArrayList<>();
@@ -51,8 +52,8 @@ public class OrderResource {
     public Response create(CreateOrderRequest request) {
 
         if (request == null
-                || request.item == null
-                || request.item.isBlank()
+                || request.itemId == null
+                || request.itemId.isBlank()
                 || request.quantity <= 0) {
 
             return Response.status(Response.Status.BAD_REQUEST)
@@ -63,10 +64,23 @@ public class OrderResource {
                     .build();
         }
 
+        Optional<MenuItem> menuItem = menu.stream()
+                .filter(item -> item.id.equals(request.itemId))
+                .findFirst();
+
+        if (menuItem.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "Item não encontrado no cardápio."))
+                    .build();
+        }
+
+        MenuItem item = menuItem.get();
         Order order = new Order(
             UUID.randomUUID(),
-            request.item,
+            item.id,
+            item.name,
             request.quantity,
+            item.price * request.quantity,
             "CREATED"
         );
 

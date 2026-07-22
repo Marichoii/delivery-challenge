@@ -5,8 +5,8 @@ Inicio bem simples do backend de uma aplicacao de delivery usando Java com Quark
 ## O que tem agora
 
 - `GET /health`: verifica se a API esta rodando;
-- `GET /menu`: mostra um cardapio fixo;
-- `POST /orders`: cria um pedido;
+- `GET /menu`: mostra um cardapio fixo com `id`, categoria, nome e preco;
+- `POST /orders`: cria um pedido usando o `itemId`, valida se o item existe e calcula o total;
 - `GET /orders`: lista os pedidos criados.
 
 Por enquanto nao tem frontend, DB2, Kafka/Event Streams nem microsservicos separados. A ideia e comecar pelo basico e evoluir aos poucos.
@@ -30,5 +30,7 @@ Depois acesse:
 ```bash
 curl -X POST http://localhost:8081/orders \
   -H "Content-Type: application/json" \
-  -d '{"item":"Hamburguer","quantity":1}'
+  -d '{"itemId":"angus-divino","quantity":2}'
 ```
+
+O backend vai responder com o nome do item, quantidade, total e status `CREATED`.
