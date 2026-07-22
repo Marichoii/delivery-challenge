@@ -19,14 +19,14 @@ import java.util.UUID;
 public class OrderResource {
 
     private final List<MenuItem> menu = List.of(
-            new MenuItem("Carpaccio", 95.00),
-            new MenuItem("Bolinhas de Carbonara", 50.00),
-            new MenuItem("Crosta de Pães Especiais", 120.00),
-            new MenuItem("Angus Divino", 150.00),
-            new MenuItem("Refrigerantes", 8.00),
-            new MenuItem("Sucos Naturais", 12.00),
-            new MenuItem("Torta de Café", 20.00),
-            new MenuItem("Bolo Quente", 49.00)
+            new MenuItem("Entrada", "Carpaccio", 95.00),
+            new MenuItem("Entrada", "Bolinhas de Carbonara", 50.00),
+            new MenuItem("Prato Principal", "Crosta de Pães Especiais", 120.00),
+            new MenuItem("Prato Principal", "Angus Divino", 150.00),
+            new MenuItem("Bebidas", "Refrigerantes", 8.00),
+            new MenuItem("Bebidas", "Sucos Naturais", 12.00),
+            new MenuItem("Sobremesas", "Torta de Café", 20.00),
+            new MenuItem("Sobremesas", "Bolo Quente", 49.00)
     );
 
     private final List<Order> orders = new ArrayList<>();
