@@ -12,7 +12,8 @@ import java.util.UUID;
 public class Order {
 
     @Id
-    public UUID id;
+    @Column(length = 36)
+    public String id;
 
     @Column(nullable = false)
     public String customerName;
@@ -35,7 +36,7 @@ public class Order {
     public Order() {
     }
 
-    public Order(UUID id, String customerName, String itemId, String itemName, int quantity, double total, String status) {
+    public Order(String id, String customerName, String itemId, String itemName, int quantity, double total, String status) {
         this.id = id;
         this.customerName = customerName;
         this.itemId = itemId;

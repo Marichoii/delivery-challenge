@@ -99,7 +99,7 @@ public class OrderResource {
 
         MenuItem item = menuItem.get();
         Order order = new Order(
-            UUID.randomUUID(),
+            UUID.randomUUID().toString(),
             CUSTOMER_NAME,
             item.id,
             item.name,
