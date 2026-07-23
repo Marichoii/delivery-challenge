@@ -7,6 +7,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +24,10 @@ public class OrderResource {
     private static final String CUSTOMER_NAME = "Cliente MVP";
 
     private final List<MenuCategory> menuCategories;
+    private final EntityManager entityManager;
 
-    public OrderResource() {
+    public OrderResource(EntityManager entityManager) {
+        this.entityManager = entityManager;
         this.menuCategories = new ArrayList<>();
         menuCategories.add(new MenuCategory("Entradinhas", List.of(
             new MenuItem("carpaccio-salmao", "Carpaccio de Salmão", 50.0),
@@ -49,8 +53,6 @@ public class OrderResource {
         )));
     }
     
-    private final List<Order> orders = new ArrayList<>();
-
     @GET
     @Path("/health")
     public Map<String, String> status() {
@@ -68,6 +70,7 @@ public class OrderResource {
 
     @POST
     @Path("/orders")
+    @Transactional
     public Response create(CreateOrderRequest request) {
 
         if (request == null
@@ -105,7 +108,7 @@ public class OrderResource {
             "CREATED"
         );
 
-        orders.add(order);
+        entityManager.persist(order);
 
         return Response.status(Response.Status.CREATED)
                 .entity(order)
@@ -115,6 +118,8 @@ public class OrderResource {
     @GET
     @Path("/orders")
     public List<Order> list() {
-        return orders;
+        return entityManager
+                .createQuery("from CustomerOrder order by itemName", Order.class)
+                .getResultList();
     }
 }
