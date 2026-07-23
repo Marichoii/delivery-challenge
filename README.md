@@ -11,7 +11,7 @@ Inicio bem simples do backend de uma aplicacao de delivery usando Java com Quark
 
 Os pedidos ja sao persistidos via JPA/Hibernate. Em execucao normal, o backend aponta para DB2. Nos testes, ele usa H2 em memoria para nao depender do banco real.
 
-Por enquanto nao tem frontend, Kafka/Event Streams nem microsservicos separados. A ideia e comecar pelo basico e evoluir aos poucos.
+Por enquanto nao tem Kafka/Event Streams nem microsservicos separados. A ideia e comecar pelo basico e evoluir aos poucos.
 
 ## Como rodar com DB2
 
@@ -81,6 +81,20 @@ Depois acesse:
 - `http://localhost:8081/menu`
 - `http://localhost:8081/orders`
 - `http://localhost:8081/q/swagger-ui`
+
+## Como rodar o frontend
+
+Com o backend rodando, abra outro terminal:
+
+```bash
+cd frontend
+npm install
+npm start
+```
+
+Depois acesse:
+
+- `http://localhost:4200`
 
 ## Exemplo do cardapio
 

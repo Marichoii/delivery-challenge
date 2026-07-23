@@ -7,3 +7,11 @@
 .vscode/
 certs/
 **/certs/
+
+node_modules/
+frontend/dist/
+frontend/.angular/cache/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*

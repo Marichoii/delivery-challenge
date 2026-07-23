@@ -1,0 +1,178 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #f5f6f8;
+  color: #1c2733;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+  margin: 0 auto;
+  padding: 28px 16px;
+  width: min(1040px, 100%);
+}
+
+header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+header span,
+.muted,
+.order span,
+.selected span {
+  color: #66717f;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: 32px;
+}
+
+h2 {
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+
+h3 {
+  font-size: 16px;
+  margin: 18px 0 8px;
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr 320px;
+}
+
+.panel {
+  background: #ffffff;
+  border: 1px solid #d9dee5;
+  border-radius: 8px;
+  padding: 18px;
+}
+
+.category:first-of-type h3 {
+  margin-top: 0;
+}
+
+.item,
+button {
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.item {
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #d9dee5;
+  color: inherit;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  min-height: 48px;
+  padding: 10px 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.item.selected {
+  border-color: #157347;
+  outline: 2px solid #d8f1e3;
+}
+
+header button,
+.primary {
+  background: #157347;
+  border: 0;
+  color: #ffffff;
+  font-weight: 700;
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.selected {
+  border: 1px solid #d9dee5;
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 12px;
+}
+
+label {
+  display: grid;
+  font-weight: 700;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+input {
+  border: 1px solid #c9d0d8;
+  border-radius: 6px;
+  font: inherit;
+  height: 40px;
+  padding: 0 10px;
+}
+
+.primary {
+  width: 100%;
+}
+
+.message {
+  color: #157347;
+  font-weight: 700;
+  margin-top: 12px;
+}
+
+.orders {
+  margin-top: 16px;
+}
+
+.order {
+  align-items: center;
+  border-top: 1px solid #e8ebef;
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.order:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.order span {
+  display: block;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+@media (max-width: 760px) {
+  header,
+  .order {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
