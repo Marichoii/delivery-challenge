@@ -38,6 +38,16 @@ nb-configuration.xml
 
 # Local environment
 .env
+.env.*
+!.env.example
+*.env
+*.local
+application-local.properties
+application-db2.properties
+*credentials*
+*secret*
+*.log
+TestDB2Connection.java
 
 # Plugin directory
 /.quarkus/cli/plugins/

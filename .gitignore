@@ -1,12 +1,22 @@
 .env
 .env.*
 !.env.example
+*.env
+*.local
+application-local.properties
+application-db2.properties
+*credentials*
+*secret*
 
 .DS_Store
 .quarkus/
 .vscode/
 certs/
 **/certs/
+
+backend/order-service/TestDB2Connection.java
+backend/order-service/*.log
+backend/order-service/target/
 
 node_modules/
 frontend/dist/
