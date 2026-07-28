@@ -7,7 +7,12 @@ Inicio bem simples do backend de uma aplicacao de delivery usando Java com Quark
 - `GET /health`: verifica se a API esta rodando;
 - `GET /menu`: mostra um cardapio fixo agrupado por categoria;
 - `POST /orders`: cria um pedido usando o `itemId`, valida se o item existe e calcula o total;
-- `GET /orders`: lista os pedidos criados.
+- `GET /orders`: lista os pedidos criados;
+- `GET /orders/{id}`: busca um pedido pelo id;
+- `POST /orders/{id}/confirm`: muda o status para `CONFIRMED`;
+- `POST /orders/{id}/prepare`: muda o status para `PREPARING`;
+- `POST /orders/{id}/ready`: muda o status para `READY`;
+- `POST /orders/{id}/deliver`: muda o status para `DELIVERED`.
 
 Os pedidos ja sao persistidos via JPA/Hibernate. Em execucao normal, o backend aponta para DB2. Nos testes, ele usa H2 em memoria para nao depender do banco real.
 
@@ -124,6 +129,17 @@ curl -X POST http://localhost:8081/orders \
 ```
 
 O backend vai responder com o nome do item, quantidade, total e status `CREATED`.
+
+## Exemplo de mudanca de status
+
+Depois de criar um pedido, copie o `id` retornado e use nas chamadas:
+
+```bash
+curl -X POST http://localhost:8081/orders/ID_DO_PEDIDO/confirm
+curl -X POST http://localhost:8081/orders/ID_DO_PEDIDO/prepare
+curl -X POST http://localhost:8081/orders/ID_DO_PEDIDO/ready
+curl -X POST http://localhost:8081/orders/ID_DO_PEDIDO/deliver
+```
 
 ## Observacoes tecnicas sobre o DB2 on Cloud
 

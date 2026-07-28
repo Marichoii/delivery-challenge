@@ -56,4 +56,37 @@ class GreetingResourceTest {
                 .body("error", is("Item não encontrado no cardápio."));
     }
 
+    @Test
+    void testUpdateOrderStatus() {
+        String id = given()
+                .contentType("application/json")
+                .body("{\"itemId\":\"suco\",\"quantity\":1}")
+                .when().post("/orders")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
+
+        given()
+                .when().post("/orders/" + id + "/confirm")
+                .then()
+                .statusCode(200)
+                .body("status", is("CONFIRMED"));
+
+        given()
+                .when().get("/orders/" + id)
+                .then()
+                .statusCode(200)
+                .body("status", is("CONFIRMED"));
+    }
+
+    @Test
+    void testUpdateMissingOrderStatus() {
+        given()
+                .when().post("/orders/pedido-inexistente/confirm")
+                .then()
+                .statusCode(404)
+                .body("error", is("Pedido não encontrado."));
+    }
+
 }

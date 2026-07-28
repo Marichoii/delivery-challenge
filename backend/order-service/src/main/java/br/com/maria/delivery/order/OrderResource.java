@@ -4,6 +4,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -18,7 +19,6 @@ import java.util.UUID;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 public class OrderResource {
 
     private static final String CUSTOMER_NAME = "Cliente MVP";
@@ -70,6 +70,7 @@ public class OrderResource {
 
     @POST
     @Path("/orders")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Transactional
     public Response create(CreateOrderRequest request) {
 
@@ -121,5 +122,60 @@ public class OrderResource {
         return entityManager
                 .createQuery("from CustomerOrder order by itemName", Order.class)
                 .getResultList();
+    }
+
+    @GET
+    @Path("/orders/{id}")
+    public Response findById(@PathParam("id") String id) {
+        Order order = entityManager.find(Order.class, id);
+
+        if (order == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "Pedido não encontrado."))
+                    .build();
+        }
+
+        return Response.ok(order).build();
+    }
+
+    @POST
+    @Path("/orders/{id}/confirm")
+    @Transactional
+    public Response confirm(@PathParam("id") String id) {
+        return updateStatus(id, "CONFIRMED");
+    }
+
+    @POST
+    @Path("/orders/{id}/prepare")
+    @Transactional
+    public Response prepare(@PathParam("id") String id) {
+        return updateStatus(id, "PREPARING");
+    }
+
+    @POST
+    @Path("/orders/{id}/ready")
+    @Transactional
+    public Response ready(@PathParam("id") String id) {
+        return updateStatus(id, "READY");
+    }
+
+    @POST
+    @Path("/orders/{id}/deliver")
+    @Transactional
+    public Response deliver(@PathParam("id") String id) {
+        return updateStatus(id, "DELIVERED");
+    }
+
+    private Response updateStatus(String id, String status) {
+        Order order = entityManager.find(Order.class, id);
+
+        if (order == null) {
+            return Response.status(Response.Status.NOT_FOUND)
+                    .entity(Map.of("error", "Pedido não encontrado."))
+                    .build();
+        }
+
+        order.status = status;
+        return Response.ok(order).build();
     }
 }
