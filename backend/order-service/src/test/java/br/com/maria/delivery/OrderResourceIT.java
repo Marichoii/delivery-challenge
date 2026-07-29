@@ -3,6 +3,6 @@ package br.com.maria.delivery;
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
 @QuarkusIntegrationTest
-class GreetingResourceIT extends GreetingResourceTest {
+class OrderResourceIT extends OrderResourceTest {
     // Execute the same tests but in packaged mode.
 }

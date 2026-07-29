@@ -7,7 +7,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
-class GreetingResourceTest {
+class OrderResourceTest {
     @Test
     void testHealthEndpoint() {
         given()
@@ -81,6 +81,24 @@ class GreetingResourceTest {
     }
 
     @Test
+    void testRejectInvalidStatusTransition() {
+        String id = given()
+                .contentType("application/json")
+                .body("{\"itemId\":\"suco\",\"quantity\":1}")
+                .when().post("/orders")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
+
+        given()
+                .when().post("/orders/" + id + "/deliver")
+                .then()
+                .statusCode(409)
+                .body("error", is("Transição inválida de CREATED para DELIVERED."));
+    }
+
+    @Test
     void testOrderHistory() {
         String id = given()
                 .contentType("application/json")
@@ -112,5 +130,4 @@ class GreetingResourceTest {
                 .statusCode(404)
                 .body("error", is("Pedido não encontrado."));
     }
-
 }

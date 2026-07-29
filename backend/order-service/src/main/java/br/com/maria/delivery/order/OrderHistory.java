@@ -2,6 +2,8 @@ package br.com.maria.delivery.order;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
@@ -20,7 +22,8 @@ public class OrderHistory {
     public String orderId;
 
     @Column(nullable = false)
-    public String status;
+    @Enumerated(EnumType.STRING)
+    public OrderStatus status;
 
     @Column(nullable = false)
     public String description;
@@ -31,7 +34,7 @@ public class OrderHistory {
     public OrderHistory() {
     }
 
-    public OrderHistory(String orderId, String status, String description) {
+    public OrderHistory(String orderId, OrderStatus status, String description) {
         this.id = UUID.randomUUID().toString();
         this.orderId = orderId;
         this.status = status;

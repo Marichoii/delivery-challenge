@@ -8,49 +8,21 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class OrderResource {
 
-    private static final String CUSTOMER_NAME = "Cliente MVP";
+    private final MenuService menuService;
+    private final OrderService orderService;
 
-    private final List<MenuCategory> menuCategories;
-    private final EntityManager entityManager;
-
-    public OrderResource(EntityManager entityManager) {
-        this.entityManager = entityManager;
-        this.menuCategories = new ArrayList<>();
-        menuCategories.add(new MenuCategory("Entradinhas", List.of(
-            new MenuItem("carpaccio-salmao", "Carpaccio de Salmão", 50.0),
-            new MenuItem("dadinho-tapioca", "Dadinho de Tapioca", 30.0),
-            new MenuItem("gelo", "Gelo", 5.0)
-        )));
-        menuCategories.add(new MenuCategory("Pratos Principais", List.of(
-            new MenuItem("crostas-paes", "Crostas de Pães Especiais", 110.0),
-            new MenuItem("risoto-camarao", "Risoto de Camarão", 70.0),
-            new MenuItem("angus-divino", "Angus Divino", 120.0)
-        )));
-        menuCategories.add(new MenuCategory("Sobremesas", List.of(
-            new MenuItem("torta-cafe", "Torta de Café", 20.0),
-            new MenuItem("bolo-quente", "Bolo Quente", 25.0),
-            new MenuItem("quindim", "Quindim", 20.0)
-        )));
-        menuCategories.add(new MenuCategory("Bebidas", List.of(
-            new MenuItem("cerveja", "Cerveja", 10.0),
-            new MenuItem("vinho", "Vinho", 30.0),
-            new MenuItem("refrigerante", "Refrigerante", 9.0),
-            new MenuItem("suco", "Suco", 12.0),
-            new MenuItem("agua", "Água", 5.0)
-        )));
+    public OrderResource(MenuService menuService, OrderService orderService) {
+        this.menuService = menuService;
+        this.orderService = orderService;
     }
     
     @GET
@@ -65,13 +37,12 @@ public class OrderResource {
     @GET
     @Path("/menu")
     public List<MenuCategory> menuCategories() {
-        return menuCategories;
+        return menuService.listCategories();
     }
 
     @POST
     @Path("/orders")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Transactional
     public Response create(CreateOrderRequest request) {
 
         if (request == null
@@ -87,48 +58,28 @@ public class OrderResource {
                     .build();
         }
 
-        Optional<MenuItem> menuItem = menuCategories.stream()
-                .flatMap(category -> category.items.stream())
-                .filter(item -> item.id.equals(request.itemId))
-                .findFirst();
-
-        if (menuItem.isEmpty()) {
+        Optional<Order> order = orderService.create(request);
+        if (order.isEmpty()) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(Map.of("error", "Item não encontrado no cardápio."))
                     .build();
         }
 
-        MenuItem item = menuItem.get();
-        Order order = new Order(
-            UUID.randomUUID().toString(),
-            CUSTOMER_NAME,
-            item.id,
-            item.name,
-            request.quantity,
-            item.price * request.quantity,
-            "CREATED"
-        );
-
-        entityManager.persist(order);
-        registerHistory(order.id, order.status, "Pedido criado.");
-
         return Response.status(Response.Status.CREATED)
-                .entity(order)
+                .entity(order.get())
                 .build();
     }
 
     @GET
     @Path("/orders")
     public List<Order> list() {
-        return entityManager
-                .createQuery("from CustomerOrder order by itemName", Order.class)
-                .getResultList();
+        return orderService.list();
     }
 
     @GET
     @Path("/orders/{id}")
     public Response findById(@PathParam("id") String id) {
-        Order order = entityManager.find(Order.class, id);
+        Order order = orderService.findById(id);
 
         if (order == null) {
             return Response.status(Response.Status.NOT_FOUND)
@@ -142,65 +93,47 @@ public class OrderResource {
     @GET
     @Path("/orders/{id}/history")
     public List<OrderHistory> history(@PathParam("id") String id) {
-        return entityManager
-                .createQuery("from OrderHistory where orderId = :orderId order by createdAt", OrderHistory.class)
-                .setParameter("orderId", id)
-                .getResultList();
+        return orderService.history(id);
     }
 
     @POST
     @Path("/orders/{id}/confirm")
-    @Transactional
     public Response confirm(@PathParam("id") String id) {
-        return updateStatus(id, "CONFIRMED");
+        return updateStatus(id, OrderStatus.CONFIRMED);
     }
 
     @POST
     @Path("/orders/{id}/prepare")
-    @Transactional
     public Response prepare(@PathParam("id") String id) {
-        return updateStatus(id, "PREPARING");
+        return updateStatus(id, OrderStatus.PREPARING);
     }
 
     @POST
     @Path("/orders/{id}/ready")
-    @Transactional
     public Response ready(@PathParam("id") String id) {
-        return updateStatus(id, "READY");
+        return updateStatus(id, OrderStatus.READY);
     }
 
     @POST
     @Path("/orders/{id}/deliver")
-    @Transactional
     public Response deliver(@PathParam("id") String id) {
-        return updateStatus(id, "DELIVERED");
+        return updateStatus(id, OrderStatus.DELIVERED);
     }
 
-    private Response updateStatus(String id, String status) {
-        Order order = entityManager.find(Order.class, id);
-
-        if (order == null) {
+    private Response updateStatus(String id, OrderStatus status) {
+        StatusUpdateResult result = orderService.updateStatus(id, status);
+        if (result.notFound) {
             return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of("error", "Pedido não encontrado."))
+                    .entity(Map.of("error", result.message))
                     .build();
         }
 
-        order.status = status;
-        registerHistory(order.id, status, descriptionFor(status));
-        return Response.ok(order).build();
-    }
+        if (result.invalidTransition) {
+            return Response.status(Response.Status.CONFLICT)
+                    .entity(Map.of("error", result.message))
+                    .build();
+        }
 
-    private void registerHistory(String orderId, String status, String description) {
-        entityManager.persist(new OrderHistory(orderId, status, description));
-    }
-
-    private String descriptionFor(String status) {
-        return switch (status) {
-            case "CONFIRMED" -> "Pedido confirmado pelo restaurante.";
-            case "PREPARING" -> "Pedido em preparo.";
-            case "READY" -> "Pedido pronto para entrega.";
-            case "DELIVERED" -> "Pedido entregue ao cliente.";
-            default -> "Status do pedido atualizado.";
-        };
+        return Response.ok(result.order).build();
     }
 }
