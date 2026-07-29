@@ -110,6 +110,7 @@ public class OrderResource {
         );
 
         entityManager.persist(order);
+        registerHistory(order.id, order.status, "Pedido criado.");
 
         return Response.status(Response.Status.CREATED)
                 .entity(order)
@@ -136,6 +137,15 @@ public class OrderResource {
         }
 
         return Response.ok(order).build();
+    }
+
+    @GET
+    @Path("/orders/{id}/history")
+    public List<OrderHistory> history(@PathParam("id") String id) {
+        return entityManager
+                .createQuery("from OrderHistory where orderId = :orderId order by createdAt", OrderHistory.class)
+                .setParameter("orderId", id)
+                .getResultList();
     }
 
     @POST
@@ -176,6 +186,21 @@ public class OrderResource {
         }
 
         order.status = status;
+        registerHistory(order.id, status, descriptionFor(status));
         return Response.ok(order).build();
+    }
+
+    private void registerHistory(String orderId, String status, String description) {
+        entityManager.persist(new OrderHistory(orderId, status, description));
+    }
+
+    private String descriptionFor(String status) {
+        return switch (status) {
+            case "CONFIRMED" -> "Pedido confirmado pelo restaurante.";
+            case "PREPARING" -> "Pedido em preparo.";
+            case "READY" -> "Pedido pronto para entrega.";
+            case "DELIVERED" -> "Pedido entregue ao cliente.";
+            default -> "Status do pedido atualizado.";
+        };
     }
 }

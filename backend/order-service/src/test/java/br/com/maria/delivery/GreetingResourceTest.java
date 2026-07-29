@@ -81,6 +81,30 @@ class GreetingResourceTest {
     }
 
     @Test
+    void testOrderHistory() {
+        String id = given()
+                .contentType("application/json")
+                .body("{\"itemId\":\"refrigerante\",\"quantity\":1}")
+                .when().post("/orders")
+                .then()
+                .statusCode(201)
+                .extract()
+                .path("id");
+
+        given()
+                .when().post("/orders/" + id + "/confirm")
+                .then()
+                .statusCode(200);
+
+        given()
+                .when().get("/orders/" + id + "/history")
+                .then()
+                .statusCode(200)
+                .body("[0].status", is("CREATED"))
+                .body("[1].status", is("CONFIRMED"));
+    }
+
+    @Test
     void testUpdateMissingOrderStatus() {
         given()
                 .when().post("/orders/pedido-inexistente/confirm")
