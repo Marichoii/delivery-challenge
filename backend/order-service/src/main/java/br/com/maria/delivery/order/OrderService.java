@@ -15,10 +15,12 @@ public class OrderService {
 
     private final EntityManager entityManager;
     private final MenuService menuService;
+    private final OrderEventPublisher eventPublisher;
 
-    public OrderService(EntityManager entityManager, MenuService menuService) {
+    public OrderService(EntityManager entityManager, MenuService menuService, OrderEventPublisher eventPublisher) {
         this.entityManager = entityManager;
         this.menuService = menuService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -41,6 +43,7 @@ public class OrderService {
 
         entityManager.persist(order);
         registerHistory(order.id, order.status, "Pedido criado.");
+        publishEvent(order.id, order.status);
         return Optional.of(order);
     }
 
@@ -74,11 +77,26 @@ public class OrderService {
 
         order.status = nextStatus;
         registerHistory(order.id, nextStatus, descriptionFor(nextStatus));
+        publishEvent(order.id, nextStatus);
         return StatusUpdateResult.updated(order);
     }
 
     private void registerHistory(String orderId, OrderStatus status, String description) {
         entityManager.persist(new OrderHistory(orderId, status, description));
+    }
+
+    private void publishEvent(String orderId, OrderStatus status) {
+        eventPublisher.publish(new OrderEvent(eventTypeFor(status), orderId, status));
+    }
+
+    private String eventTypeFor(OrderStatus status) {
+        return switch (status) {
+            case CREATED -> "ORDER_CREATED";
+            case CONFIRMED -> "ORDER_CONFIRMED";
+            case PREPARING -> "ORDER_PREPARING";
+            case READY -> "ORDER_READY";
+            case DELIVERED -> "ORDER_DELIVERED";
+        };
     }
 
     private String descriptionFor(OrderStatus status) {
