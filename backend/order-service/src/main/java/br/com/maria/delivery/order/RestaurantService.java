@@ -24,8 +24,8 @@ public class RestaurantService {
     }
 
     @Transactional
-    public Restaurant create(String name, String address, String dish, double price, String description) {
-        Restaurant restaurant = new Restaurant(java.util.UUID.randomUUID().toString(), name, address, dish, price, description);
+    public Restaurant create(String name, String address, String description) {
+        Restaurant restaurant = new Restaurant(java.util.UUID.randomUUID().toString(), name, address, description);
         entityManager.persist(restaurant);
         return restaurant;
     }

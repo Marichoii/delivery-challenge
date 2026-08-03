@@ -17,24 +17,30 @@ public class MvpDataInitializer {
 
     @Transactional
     void onStart(@Observes StartupEvent event) {
-        // Dados fixos do MVP: por enquanto o sistema tem 1 cliente e 1 restaurante.
-        if (entityManager.find(Customer.class, OrderService.CUSTOMER_ID) == null) {
+        Customer customer = entityManager.find(Customer.class, OrderService.CUSTOMER_ID);
+        if (customer == null) {
             entityManager.persist(new Customer(
                     OrderService.CUSTOMER_ID,
                     "Cliente MVP",
-                    "Rua das Flores, 123"
+                    "SQN 312 Bloco C"
             ));
+        } else {
+            customer.name = "Cliente MVP";
+            customer.address = "SQN 312 Bloco C";
         }
 
-        if (entityManager.find(Restaurant.class, OrderService.RESTAURANT_ID) == null) {
+        Restaurant restaurant = entityManager.find(Restaurant.class, OrderService.RESTAURANT_ID);
+        if (restaurant == null) {
             entityManager.persist(new Restaurant(
                     OrderService.RESTAURANT_ID,
                     "Restaurante MVP",
-                    "Avenida Central, 456",
-                    "Angus Divino",
-                    120.0,
+                    "SHCN/CL Qd 413 Bloco A",
                     "Restaurante simples do MVP, usado para praticar pedidos, DB2 e eventos."
             ));
+        } else {
+            restaurant.name = "Restaurante MVP";
+            restaurant.address = "SHCN/CL Qd 413 Bloco A";
+            restaurant.description = "Restaurante simples do MVP, usado para praticar pedidos, DB2 e eventos.";
         }
     }
 }
