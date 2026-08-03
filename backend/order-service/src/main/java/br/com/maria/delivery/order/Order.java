@@ -15,20 +15,17 @@ public class Order {
     @Column(length = 36)
     public String id;
 
-    @Column(nullable = false)
-    public String customerName;
+    @Column(nullable = false, length = 36)
+    public String customerId;
+
+    @Column(nullable = false, length = 36)
+    public String restaurantId;
 
     @Column(nullable = false)
-    public String itemId;
+    public String dish;
 
     @Column(nullable = false)
-    public String itemName;
-
-    @Column(nullable = false)
-    public int quantity;
-
-    @Column(nullable = false)
-    public double total;
+    public double price;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -37,13 +34,12 @@ public class Order {
     public Order() {
     }
 
-    public Order(String id, String customerName, String itemId, String itemName, int quantity, double total, OrderStatus status) {
+    public Order(String id, String customerId, String restaurantId, String dish, double price, OrderStatus status) {
         this.id = id;
-        this.customerName = customerName;
-        this.itemId = itemId;
-        this.itemName = itemName;
-        this.quantity = quantity;
-        this.total = total;
+        this.customerId = customerId;
+        this.restaurantId = restaurantId;
+        this.dish = dish;
+        this.price = price;
         this.status = status;
     }
 }

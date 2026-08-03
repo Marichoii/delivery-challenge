@@ -19,48 +19,46 @@ class OrderResourceTest {
     }
 
     @Test
-    void testMenuGroupedByCategory() {
+    void testListMvpRestaurant() {
         given()
-                .when().get("/menu")
+                .when().get("/restaurants")
                 .then()
                 .statusCode(200)
-                .body("[0].name", is("Entradinhas"))
-                .body("[0].items[0].id", is("carpaccio-salmao"))
-                .body("[0].items[0].name", is("Carpaccio de Salmão"))
-                .body("[0].items[0].price", is(50.0F));
+                .body("[0].id", is("restaurante-mvp"))
+                .body("[0].dish", is("Angus Divino"))
+                .body("[0].price", is(120.0F));
     }
 
     @Test
     void testCreateOrder() {
         given()
                 .contentType("application/json")
-                .body("{\"itemId\":\"angus-divino\",\"quantity\":2}")
+                .body("{}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
-                .body("itemId", is("angus-divino"))
-                .body("itemName", is("Angus Divino"))
-                .body("quantity", is(2))
-                .body("total", is(240.0F))
+                .body("customerId", is("cliente-mvp"))
+                .body("restaurantId", is("restaurante-mvp"))
+                .body("dish", is("Angus Divino"))
+                .body("price", is(120.0F))
                 .body("status", is("CREATED"));
     }
 
     @Test
-    void testCreateOrderWithInvalidItem() {
+    void testListMvpCustomer() {
         given()
-                .contentType("application/json")
-                .body("{\"itemId\":\"item-inexistente\",\"quantity\":1}")
-                .when().post("/orders")
+                .when().get("/customers")
                 .then()
-                .statusCode(404)
-                .body("error", is("Item não encontrado no cardápio."));
+                .statusCode(200)
+                .body("[0].id", is("cliente-mvp"))
+                .body("[0].name", is("Cliente MVP"));
     }
 
     @Test
     void testUpdateOrderStatus() {
         String id = given()
                 .contentType("application/json")
-                .body("{\"itemId\":\"suco\",\"quantity\":1}")
+                .body("{}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
@@ -84,7 +82,7 @@ class OrderResourceTest {
     void testRejectInvalidStatusTransition() {
         String id = given()
                 .contentType("application/json")
-                .body("{\"itemId\":\"suco\",\"quantity\":1}")
+                .body("{}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
@@ -102,7 +100,7 @@ class OrderResourceTest {
     void testOrderHistory() {
         String id = given()
                 .contentType("application/json")
-                .body("{\"itemId\":\"refrigerante\",\"quantity\":1}")
+                .body("{}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)

@@ -1,7 +1,5 @@
 package br.com.maria.delivery.order;
 
 public class CreateOrderRequest {
-
-    public String itemId;
-    public int quantity;
+    // MVP: só 1 cliente e 1 restaurante — sem parâmetros necessários
 }
