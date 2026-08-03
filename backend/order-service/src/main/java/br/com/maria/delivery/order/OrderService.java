@@ -24,17 +24,18 @@ public class OrderService {
 
     @Transactional
     public Order create(CreateOrderRequest request) {
-        Restaurant restaurant = entityManager.find(Restaurant.class, RESTAURANT_ID);
-        if (restaurant == null) {
-            throw new IllegalStateException("Restaurante MVP não encontrado no banco.");
+        MenuItem item = entityManager.find(MenuItem.class, request.itemId);
+        if (item == null) {
+            throw new IllegalArgumentException("Item não encontrado: " + request.itemId);
         }
 
         Order order = new Order(
                 UUID.randomUUID().toString(),
                 CUSTOMER_ID,
                 RESTAURANT_ID,
-                restaurant.dish,
-                restaurant.price,
+                item.id,
+                item.name,
+                item.price,
                 OrderStatus.CREATED
         );
 
@@ -46,7 +47,7 @@ public class OrderService {
 
     public List<Order> list() {
         return entityManager
-                .createQuery("from CustomerOrder order by dish", Order.class)
+                .createQuery("from CustomerOrder order by itemName", Order.class)
                 .getResultList();
     }
 

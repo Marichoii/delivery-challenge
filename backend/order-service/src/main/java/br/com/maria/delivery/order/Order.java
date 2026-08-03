@@ -21,8 +21,11 @@ public class Order {
     @Column(nullable = false, length = 36)
     public String restaurantId;
 
+    @Column(nullable = false, length = 36)
+    public String itemId;
+
     @Column(nullable = false)
-    public String dish;
+    public String itemName;
 
     @Column(nullable = false)
     public double price;
@@ -34,11 +37,12 @@ public class Order {
     public Order() {
     }
 
-    public Order(String id, String customerId, String restaurantId, String dish, double price, OrderStatus status) {
+    public Order(String id, String customerId, String restaurantId, String itemId, String itemName, double price, OrderStatus status) {
         this.id = id;
         this.customerId = customerId;
         this.restaurantId = restaurantId;
-        this.dish = dish;
+        this.itemId = itemId;
+        this.itemName = itemName;
         this.price = price;
         this.status = status;
     }
