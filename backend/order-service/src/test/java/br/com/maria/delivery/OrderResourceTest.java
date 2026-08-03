@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 @QuarkusTest
 class OrderResourceTest {
+
     @Test
     void testHealthEndpoint() {
         given()
@@ -25,23 +27,7 @@ class OrderResourceTest {
                 .then()
                 .statusCode(200)
                 .body("[0].id", is("restaurante-mvp"))
-                .body("[0].dish", is("Angus Divino"))
-                .body("[0].price", is(120.0F));
-    }
-
-    @Test
-    void testCreateOrder() {
-        given()
-                .contentType("application/json")
-                .body("{}")
-                .when().post("/orders")
-                .then()
-                .statusCode(201)
-                .body("customerId", is("cliente-mvp"))
-                .body("restaurantId", is("restaurante-mvp"))
-                .body("dish", is("Angus Divino"))
-                .body("price", is(120.0F))
-                .body("status", is("CREATED"));
+                .body("[0].name", is("Restaurante MVP"));
     }
 
     @Test
@@ -51,14 +37,50 @@ class OrderResourceTest {
                 .then()
                 .statusCode(200)
                 .body("[0].id", is("cliente-mvp"))
-                .body("[0].name", is("Cliente MVP"));
+                .body("[0].name", is("Maria Edduarda"));
+    }
+
+    @Test
+    void testListMenu() {
+        given()
+                .when().get("/menu")
+                .then()
+                .statusCode(200)
+                .body("[0].id", notNullValue())
+                .body("[0].name", notNullValue());
+    }
+
+    @Test
+    void testCreateOrderMissingItemId() {
+        given()
+                .contentType("application/json")
+                .body("{}")
+                .when().post("/orders")
+                .then()
+                .statusCode(400)
+                .body("error", is("itemId é obrigatório."));
+    }
+
+    @Test
+    void testCreateOrder() {
+        given()
+                .contentType("application/json")
+                .body("{\"itemId\":\"angus-divino\"}")
+                .when().post("/orders")
+                .then()
+                .statusCode(201)
+                .body("customerId", is("cliente-mvp"))
+                .body("restaurantId", is("restaurante-mvp"))
+                .body("itemName", is("Angus Divino"))
+                .body("price", is(120.0F))
+                .body("status", is("CREATED"));
     }
 
     @Test
     void testUpdateOrderStatus() {
         String id = given()
                 .contentType("application/json")
-                .body("{}")
+                .body("{\"itemId\":\"angus-divino\"}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
@@ -82,7 +104,7 @@ class OrderResourceTest {
     void testRejectInvalidStatusTransition() {
         String id = given()
                 .contentType("application/json")
-                .body("{}")
+                .body("{\"itemId\":\"angus-divino\"}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
@@ -100,7 +122,7 @@ class OrderResourceTest {
     void testOrderHistory() {
         String id = given()
                 .contentType("application/json")
-                .body("{}")
+                .body("{\"itemId\":\"angus-divino\"}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
