@@ -6,29 +6,25 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "menu_items")
-public class MenuItem {
+@Table(name = "customers")
+public class Customer {
 
     @Id
     @Column(length = 36)
     public String id;
 
-    @Column(nullable = false, length = 36)
-    public String restaurantId;
-
     @Column(nullable = false)
     public String name;
 
     @Column(nullable = false)
-    public double price;
+    public String address;
 
-    public MenuItem() {
+    public Customer() {
     }
 
-    public MenuItem(String id, String restaurantId, String name, double price) {
+    public Customer(String id, String name, String address) {
         this.id = id;
-        this.restaurantId = restaurantId;
         this.name = name;
-        this.price = price;
+        this.address = address;
     }
 }

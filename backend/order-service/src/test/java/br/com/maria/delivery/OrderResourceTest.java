@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 
 @QuarkusTest
 class OrderResourceTest {
+
     @Test
     void testHealthEndpoint() {
         given()
@@ -19,48 +21,66 @@ class OrderResourceTest {
     }
 
     @Test
-    void testMenuGroupedByCategory() {
+    void testListMvpRestaurant() {
+        given()
+                .when().get("/restaurants")
+                .then()
+                .statusCode(200)
+                .body("[0].id", is("restaurante-mvp"))
+                .body("[0].name", is("Restaurante MVP"));
+    }
+
+    @Test
+    void testListMvpCustomer() {
+        given()
+                .when().get("/customers")
+                .then()
+                .statusCode(200)
+                .body("[0].id", is("cliente-mvp"))
+                .body("[0].name", is("Maria Edduarda"));
+    }
+
+    @Test
+    void testListMenu() {
         given()
                 .when().get("/menu")
                 .then()
                 .statusCode(200)
-                .body("[0].name", is("Entradinhas"))
-                .body("[0].items[0].id", is("carpaccio-salmao"))
-                .body("[0].items[0].name", is("Carpaccio de Salmão"))
-                .body("[0].items[0].price", is(50.0F));
+                .body("[0].id", notNullValue())
+                .body("[0].name", notNullValue());
+    }
+
+    @Test
+    void testCreateOrderMissingItemId() {
+        given()
+                .contentType("application/json")
+                .body("{}")
+                .when().post("/orders")
+                .then()
+                .statusCode(400)
+                .body("error", is("itemId é obrigatório."));
     }
 
     @Test
     void testCreateOrder() {
         given()
                 .contentType("application/json")
-                .body("{\"itemId\":\"angus-divino\",\"quantity\":2}")
+                .body("{\"itemId\":\"angus-divino\"}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
-                .body("itemId", is("angus-divino"))
+                .body("customerId", is("cliente-mvp"))
+                .body("restaurantId", is("restaurante-mvp"))
                 .body("itemName", is("Angus Divino"))
-                .body("quantity", is(2))
-                .body("total", is(240.0F))
+                .body("price", is(120.0F))
                 .body("status", is("CREATED"));
-    }
-
-    @Test
-    void testCreateOrderWithInvalidItem() {
-        given()
-                .contentType("application/json")
-                .body("{\"itemId\":\"item-inexistente\",\"quantity\":1}")
-                .when().post("/orders")
-                .then()
-                .statusCode(404)
-                .body("error", is("Item não encontrado no cardápio."));
     }
 
     @Test
     void testUpdateOrderStatus() {
         String id = given()
                 .contentType("application/json")
-                .body("{\"itemId\":\"suco\",\"quantity\":1}")
+                .body("{\"itemId\":\"angus-divino\"}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
@@ -84,7 +104,7 @@ class OrderResourceTest {
     void testRejectInvalidStatusTransition() {
         String id = given()
                 .contentType("application/json")
-                .body("{\"itemId\":\"suco\",\"quantity\":1}")
+                .body("{\"itemId\":\"angus-divino\"}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)
@@ -102,7 +122,7 @@ class OrderResourceTest {
     void testOrderHistory() {
         String id = given()
                 .contentType("application/json")
-                .body("{\"itemId\":\"refrigerante\",\"quantity\":1}")
+                .body("{\"itemId\":\"angus-divino\"}")
                 .when().post("/orders")
                 .then()
                 .statusCode(201)

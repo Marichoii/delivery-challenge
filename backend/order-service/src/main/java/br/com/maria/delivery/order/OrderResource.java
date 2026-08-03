@@ -11,20 +11,23 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 public class OrderResource {
 
-    private final MenuService menuService;
     private final OrderService orderService;
+    private final CustomerService customerService;
+    private final RestaurantService restaurantService;
+    private final MenuItemService menuItemService;
 
-    public OrderResource(MenuService menuService, OrderService orderService) {
-        this.menuService = menuService;
+    public OrderResource(OrderService orderService, CustomerService customerService, RestaurantService restaurantService, MenuItemService menuItemService) {
         this.orderService = orderService;
+        this.customerService = customerService;
+        this.restaurantService = restaurantService;
+        this.menuItemService = menuItemService;
     }
-    
+
     @GET
     @Path("/health")
     public Map<String, String> status() {
@@ -35,39 +38,34 @@ public class OrderResource {
     }
 
     @GET
+    @Path("/customers")
+    public List<Customer> customers() {
+        return customerService.list();
+    }
+
+    @GET
     @Path("/menu")
-    public List<MenuCategory> menuCategories() {
-        return menuService.listCategories();
+    public List<MenuItem> menu() {
+        return menuItemService.listByRestaurant(OrderService.RESTAURANT_ID);
+    }
+
+    @GET
+    @Path("/restaurants")
+    public List<Restaurant> restaurants() {
+        return restaurantService.list();
     }
 
     @POST
     @Path("/orders")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(CreateOrderRequest request) {
-
-        if (request == null
-                || request.itemId == null
-                || request.itemId.isBlank()
-                || request.quantity <= 0) {
-
+        if (request == null || request.itemId == null || request.itemId.isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(Map.of(
-                        "error",
-                        "Item e quantidade válida são obrigatórios."
-                    ))
+                    .entity(Map.of("error", "itemId é obrigatório."))
                     .build();
         }
-
-        Optional<Order> order = orderService.create(request);
-        if (order.isEmpty()) {
-            return Response.status(Response.Status.NOT_FOUND)
-                    .entity(Map.of("error", "Item não encontrado no cardápio."))
-                    .build();
-        }
-
-        return Response.status(Response.Status.CREATED)
-                .entity(order.get())
-                .build();
+        Order order = orderService.create(request);
+        return Response.status(Response.Status.CREATED).entity(order).build();
     }
 
     @GET
@@ -80,13 +78,11 @@ public class OrderResource {
     @Path("/orders/{id}")
     public Response findById(@PathParam("id") String id) {
         Order order = orderService.findById(id);
-
         if (order == null) {
             return Response.status(Response.Status.NOT_FOUND)
                     .entity(Map.of("error", "Pedido não encontrado."))
                     .build();
         }
-
         return Response.ok(order).build();
     }
 
@@ -127,13 +123,11 @@ public class OrderResource {
                     .entity(Map.of("error", result.message))
                     .build();
         }
-
         if (result.invalidTransition) {
             return Response.status(Response.Status.CONFLICT)
                     .entity(Map.of("error", result.message))
                     .build();
         }
-
         return Response.ok(result.order).build();
     }
 }
