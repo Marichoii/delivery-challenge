@@ -15,16 +15,18 @@ public class OrderService {
     public static final String RESTAURANT_ID = "restaurante-mvp";
 
     private final EntityManager entityManager;
+    private final MenuItemService menuItemService;
     private final OrderEventPublisher eventPublisher;
 
-    public OrderService(EntityManager entityManager, OrderEventPublisher eventPublisher) {
+    public OrderService(EntityManager entityManager, MenuItemService menuItemService, OrderEventPublisher eventPublisher) {
         this.entityManager = entityManager;
+        this.menuItemService = menuItemService;
         this.eventPublisher = eventPublisher;
     }
 
     @Transactional
     public Order create(CreateOrderRequest request) {
-        MenuItem item = entityManager.find(MenuItem.class, request.itemId);
+        MenuItem item = menuItemService.findById(request.itemId);
         if (item == null) {
             throw new IllegalArgumentException("Item não encontrado: " + request.itemId);
         }

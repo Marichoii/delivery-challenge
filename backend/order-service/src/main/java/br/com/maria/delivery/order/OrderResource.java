@@ -19,11 +19,13 @@ public class OrderResource {
     private final OrderService orderService;
     private final CustomerService customerService;
     private final RestaurantService restaurantService;
+    private final MenuItemService menuItemService;
 
-    public OrderResource(OrderService orderService, CustomerService customerService, RestaurantService restaurantService) {
+    public OrderResource(OrderService orderService, CustomerService customerService, RestaurantService restaurantService, MenuItemService menuItemService) {
         this.orderService = orderService;
         this.customerService = customerService;
         this.restaurantService = restaurantService;
+        this.menuItemService = menuItemService;
     }
 
     @GET
@@ -39,6 +41,12 @@ public class OrderResource {
     @Path("/customers")
     public List<Customer> customers() {
         return customerService.list();
+    }
+
+    @GET
+    @Path("/menu")
+    public List<MenuItem> menu() {
+        return menuItemService.listByRestaurant(OrderService.RESTAURANT_ID);
     }
 
     @GET
