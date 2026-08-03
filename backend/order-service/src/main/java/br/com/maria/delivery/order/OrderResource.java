@@ -59,6 +59,11 @@ public class OrderResource {
     @Path("/orders")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response create(CreateOrderRequest request) {
+        if (request == null || request.itemId == null || request.itemId.isBlank()) {
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(Map.of("error", "itemId é obrigatório."))
+                    .build();
+        }
         Order order = orderService.create(request);
         return Response.status(Response.Status.CREATED).entity(order).build();
     }
