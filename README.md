@@ -1,53 +1,48 @@
 # Delivery Challenge
 
-<<<<<<< HEAD
-Aplicação de delivery inspirada no "iFood", criada como desafio para praticar backend, APIs REST, banco de dados, frontend e evolução gradual para microsservicos e event streaming!
-=======
-Backend de uma aplicacao de delivery usando Java com Quarkus, com persistencia no IBM DB2 e publicacao de eventos via Kafka.
->>>>>>> feat-order-api
+Aplicação simples de delivery para praticar backend, API REST, persistência, frontend e integração por eventos.
 
-**O objetivo não é construir uma plataforma completa**. O escopo é para ser reduzido apenas um fluxo simples com um cliente, um restaurante e um entregador, permitindo focar na arquitetura e na integração entre as partes.
+O objetivo não é construir uma plataforma completa. O escopo atual cobre um fluxo pequeno com cliente, restaurante, cardápio, criação de pedidos e evolução do status do pedido.
 
-<<<<<<< HEAD
-## Escopo Atual
+## Stack
 
-Nesta versão, o projeto possui:
+- Backend: Java 21, Quarkus, JPA/Hibernate, REST Jackson e OpenAPI.
+- Banco de dados: IBM DB2 em desenvolvimento/produção e H2 nos testes.
+- Mensageria: Kafka local via Docker Compose.
+- Frontend: Angular 17.
+- CI: GitHub Actions com build do backend e do frontend.
 
-- Backend em Java com Quarkus;
-- Frontend simples em Angular;
-- Persistencia de pedidos no IBM DB2;
-- Cardápio fixo agrupado por categorias;
-- Criação de pedidos;
-- Mudança de status do pedido;
-- Historico de status do pedido;
-- Testes automatizados usando H2 em memória.
+## Estrutura
 
-Ainda não foram implementados Kafka, IBM Event Streams ou microsserviços separados. Eles fazem parte da evolução planejada do desafio.
-=======
-### Backend (`backend/order-service`)
+```text
+.
+├── backend/order-service   # API Quarkus
+├── frontend                # Aplicação Angular
+├── docker-compose.yml      # Kafka local
+└── .github/workflows       # CI do projeto
+```
 
-- `GET /health`: verifica se a API esta rodando;
-- `GET /menu`: lista os itens do cardapio a partir do banco de dados;
-- `GET /customers`: retorna o cliente do MVP;
-- `GET /restaurants`: retorna o restaurante do MVP;
-- `POST /orders`: cria um pedido informando o `itemId`;
-- `GET /orders`: lista todos os pedidos;
-- `GET /orders/{id}`: busca um pedido pelo id;
-- `GET /orders/{id}/history`: lista o historico de status do pedido;
-- `POST /orders/{id}/confirm`: avanca o status para `CONFIRMED`;
-- `POST /orders/{id}/prepare`: avanca o status para `PREPARING`;
-- `POST /orders/{id}/ready`: avanca o status para `READY`;
-- `POST /orders/{id}/deliver`: avanca o status para `DELIVERED`.
+## Funcionalidades Atuais
 
-Os dados sao persistidos via JPA/Hibernate no IBM DB2 on Cloud. Nos testes, o backend usa H2 em memoria para nao depender do banco real.
+- Listagem de cliente, restaurante e cardápio do MVP.
+- Criação de pedidos a partir de um `itemId`.
+- Persistência de pedidos, histórico e status no DB2.
+- Avanço do pedido pelas etapas `CREATED`, `CONFIRMED`, `PREPARING`, `READY` e `DELIVERED`.
+- Publicação e consumo de eventos de pedido via Kafka nos perfis `dev` e `prod`.
+- Frontend com visão de cliente e painel operacional do restaurante.
+- Testes automatizados do backend usando H2 em memória.
 
-O cliente, o restaurante e os itens do cardapio sao inseridos automaticamente na inicializacao pelo `MvpDataInitializer`. Para alterar qualquer dado fixo, edite esse arquivo e reinicie o Quarkus.
+## Pré-Requisitos
 
-Cada pedido criado publica um evento no Kafka. A configuracao do Kafka so e ativada nos perfis `dev` e `prod` — nos testes ela e desligada.
+- Java 21.
+- Maven Wrapper, já incluído em `backend/order-service`.
+- Node.js 20 ou compatível com Angular 17.
+- Docker, para subir o Kafka local.
+- Credenciais do IBM DB2, para rodar o backend fora do perfil de teste.
 
-## Como rodar o backend
+## Variáveis de Ambiente
 
-Antes de subir o Quarkus, exporte as variaveis do DB2 no terminal:
+Antes de subir o backend em modo dev, exporte as variáveis do DB2:
 
 ```bash
 export DB2_USERNAME=seu_usuario
@@ -55,29 +50,35 @@ export DB2_PASSWORD=sua_senha
 export DB2_JDBC_URL='jdbc:db2://host-do-db2:porta/bludb:sslConnection=true;'
 ```
 
-Para subir o Kafka localmente:
+Opcionalmente, configure outro broker Kafka:
+
+```bash
+export KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+```
+
+## Como Rodar
+
+Suba o Kafka local:
 
 ```bash
 docker compose up -d
 ```
 
-Para subir o backend:
+Suba o backend:
 
 ```bash
 cd backend/order-service
 ./mvnw quarkus:dev
 ```
 
-Depois acesse:
+A API ficará disponível em:
 
 - `http://localhost:8081/health`
 - `http://localhost:8081/menu`
 - `http://localhost:8081/orders`
 - `http://localhost:8081/q/swagger-ui`
 
-## Como rodar o frontend
-
-Com o backend rodando, abra outro terminal:
+Em outro terminal, suba o frontend:
 
 ```bash
 cd frontend
@@ -85,9 +86,28 @@ npm install
 npm start
 ```
 
-Depois acesse `http://localhost:4200`.
+Acesse `http://localhost:4200`.
 
-## Exemplo de criacao de pedido
+## Endpoints Principais
+
+| Método | Rota | Descrição |
+| --- | --- | --- |
+| `GET` | `/health` | Verifica se a API está online. |
+| `GET` | `/customers` | Lista o cliente do MVP. |
+| `GET` | `/restaurants` | Lista o restaurante do MVP. |
+| `GET` | `/menu` | Lista os itens do cardápio. |
+| `POST` | `/orders` | Cria um pedido. |
+| `GET` | `/orders` | Lista pedidos. |
+| `GET` | `/orders/{id}` | Busca um pedido por ID. |
+| `GET` | `/orders/{id}/history` | Lista o histórico do pedido. |
+| `POST` | `/orders/{id}/confirm` | Avança para `CONFIRMED`. |
+| `POST` | `/orders/{id}/prepare` | Avança para `PREPARING`. |
+| `POST` | `/orders/{id}/ready` | Avança para `READY`. |
+| `POST` | `/orders/{id}/deliver` | Avança para `DELIVERED`. |
+
+## Exemplos
+
+Criar pedido:
 
 ```bash
 curl -X POST http://localhost:8081/orders \
@@ -95,7 +115,7 @@ curl -X POST http://localhost:8081/orders \
   -d '{"itemId":"angus-divino"}'
 ```
 
-Resposta:
+Resposta esperada:
 
 ```json
 {
@@ -109,7 +129,7 @@ Resposta:
 }
 ```
 
-## Exemplo de mudanca de status
+Avançar status:
 
 ```bash
 curl -X POST http://localhost:8081/orders/ID_DO_PEDIDO/confirm
@@ -118,34 +138,41 @@ curl -X POST http://localhost:8081/orders/ID_DO_PEDIDO/ready
 curl -X POST http://localhost:8081/orders/ID_DO_PEDIDO/deliver
 ```
 
-Para ver o historico:
+Consultar histórico:
 
 ```bash
 curl http://localhost:8081/orders/ID_DO_PEDIDO/history
 ```
 
-## Observacoes tecnicas sobre o DB2 on Cloud
+## Testes e Build
 
-### Schema do usuario
+Backend:
 
-No IBM Db2 on Cloud, cada usuario tem seu proprio schema. O schema padrao do usuario nao e o mesmo nome do banco — e um codigo gerado pela IBM. Para confirmar os dados salvos pelo Quarkus, use o schema correto no Run SQL do console:
-
-```sql
-SELECT * FROM "SEU_SCHEMA".ORDERS
-SELECT * FROM "SEU_SCHEMA".CUSTOMERS
-SELECT * FROM "SEU_SCHEMA".RESTAURANTS
-SELECT * FROM "SEU_SCHEMA".MENU_ITEMS
+```bash
+cd backend/order-service
+./mvnw test
 ```
 
-### Tipo da coluna ID
+Frontend:
 
-O DB2 nao aceita o tipo `UUID` do Java diretamente — ele converte para `CHAR(16) FOR BIT DATA`, causando `ERRORCODE=-4474`. A solucao foi mapear o campo `id` como `String` com `@Column(length = 36)` e gerar o UUID com `UUID.randomUUID().toString()`.
+```bash
+cd frontend
+npm ci
+npm run build
+```
 
-### Recriando tabelas com tipos corretos
+## Observações Sobre o DB2
 
-Se uma tabela foi criada com tipo errado, o Hibernate com `strategy=update` nao consegue alterar a coluna `ID` por ser chave primaria. Para recriar, drope a tabela no console do IBM Cloud e reinicie o Quarkus — ele recria automaticamente.
+No IBM DB2 on Cloud, cada usuário tem seu próprio schema. Para conferir os dados no console SQL, use o schema correto do usuário:
 
-### Variaveis de ambiente obrigatorias
+```sql
+SELECT * FROM "SEU_SCHEMA".ORDERS;
+SELECT * FROM "SEU_SCHEMA".ORDER_HISTORY;
+SELECT * FROM "SEU_SCHEMA".CUSTOMERS;
+SELECT * FROM "SEU_SCHEMA".RESTAURANTS;
+SELECT * FROM "SEU_SCHEMA".MENU_ITEMS;
+```
 
-O `application.properties` usa `${VARIAVEL}` sem fallback. As variaveis precisam estar no mesmo terminal onde o `./mvnw quarkus:dev` sera executado. Para persistir entre sessoes, adicione ao `.zshrc` ou use um arquivo `.env` com `source .env`.
->>>>>>> feat-order-api
+O DB2 não aceita o tipo `UUID` do Java diretamente nesse mapeamento. Por isso, os IDs são armazenados como `String` com `@Column(length = 36)`.
+
+Se uma tabela foi criada com tipo incorreto, o Hibernate com `schema-management.strategy=update` não altera a chave primária automaticamente. Nesse caso, remova a tabela pelo console do DB2 e reinicie o Quarkus para recriá-la.
